@@ -1,7 +1,10 @@
 import { Router } from 'express'
 
+import user from './app/controllers/UserController'
+
 const routes = new Router()
 
-routes.get('/', (req, res) => res.json({ hello: 'world' }))
+routes.get('/user', user.index)
+routes.post('/user', user.store)
 
 export default routes
