@@ -8,10 +8,10 @@ import authMiddleware from './app/middlewares/auth'
 const routes = new Router()
 
 routes.post('/login', SessionController.store)
+routes.post('/user', user.store)
 
 routes.use(authMiddleware)
 
 routes.get('/user', user.index)
-routes.post('/user', user.store)
 
 export default routes
