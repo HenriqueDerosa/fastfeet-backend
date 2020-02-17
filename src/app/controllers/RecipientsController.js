@@ -23,7 +23,7 @@ class RecipientsController {
     const { name, address, address2, number, state, city, zipcode } = req.body
 
     try {
-      const recipient_saved = await Recipient.create({
+      const {
         name,
         address,
         address2,
@@ -31,9 +31,11 @@ class RecipientsController {
         state,
         city,
         zipcode,
-      })
+      } = await Recipient.create(req.body)
 
-      return res.status(200).json(recipient_saved)
+      return res
+        .status(200)
+        .json({ name, address, address2, number, state, city, zipcode })
     } catch (err) {
       return res.json(err)
     }
