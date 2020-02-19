@@ -20,8 +20,8 @@ routes.get('/user', user.index)
 routes.use(authAdminMiddleware)
 routes.post('/recipients', RecipientsController.store)
 
-routes.post('/couriers', DeliverymenController.store)
-routes.put('/couriers/:id', DeliverymenController.update)
-routes.delete('/couriers/:id', DeliverymenController.delete)
+routes.post('/delieverymen', DeliverymenController.store)
+routes.put('/delieverymen/:id', DeliverymenController.update)
+routes.delete('/delieverymen/:id', DeliverymenController.delete)
 
 export default routes
