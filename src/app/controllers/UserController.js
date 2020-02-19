@@ -14,7 +14,7 @@ class UserController {
     console.log(password)
     const user = await User.create({ name, email, password })
 
-    return res.json({ status: 'user has been created', user })
+    return res.json(user)
   }
 }
 
