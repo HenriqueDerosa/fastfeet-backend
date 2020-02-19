@@ -2,7 +2,7 @@ import User from '../models/User'
 
 class UserController {
   async index(req, res) {
-    const user = await User.findByPk(1)
+    const user = await User.findByPk(req.params.id)
     if (!user) {
       return res.status(404).json({ error: 'not found' })
     }

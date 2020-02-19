@@ -14,14 +14,14 @@ routes.post('/user', user.store)
 
 // Allows only authorized users
 routes.use(authMiddleware)
-routes.get('/user', user.index)
+routes.get('/user/:id', user.index)
 
 // Allows only admin users
 routes.use(authAdminMiddleware)
 routes.post('/recipients', RecipientsController.store)
 
-routes.post('/delieverymen', DeliverymenController.store)
-routes.put('/delieverymen/:id', DeliverymenController.update)
-routes.delete('/delieverymen/:id', DeliverymenController.delete)
+routes.post('/deliverymen', DeliverymenController.store)
+routes.put('/deliverymen/:id', DeliverymenController.update)
+routes.delete('/deliverymen/:id', DeliverymenController.delete)
 
 export default routes
