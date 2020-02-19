@@ -16,11 +16,11 @@ class DeliverymenController {
 
     const { email } = req.body
 
-    const existentCourier = await Deliverymen.findOne({ where: { email } })
+    const existentDeliverymen = await Deliverymen.findOne({ where: { email } })
 
-    if (existentCourier) {
+    if (existentDeliverymen) {
       return res.status(400).json({
-        error: 'There is already a courier with the email provided',
+        error: 'There is already a deliveryman with the email provided',
       })
     }
 
@@ -34,9 +34,9 @@ class DeliverymenController {
   }
 
   async index(req, res) {
-    const couriers = await Deliverymen.findAll()
+    const deliverymen = await Deliverymen.findAll()
 
-    return res.status(200).json(couriers)
+    return res.status(200).json(deliverymen)
   }
 
   async update(req, res) {
