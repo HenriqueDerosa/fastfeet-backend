@@ -39,12 +39,13 @@ class SessionController {
       authConfig.options
     )
 
-    const { name } = user
+    const { name, admin } = user
 
     return res.json({
       user: {
         name,
         email,
+        admin,
       },
       token,
     })

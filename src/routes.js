@@ -1,3 +1,4 @@
+import cors from 'cors'
 import { Router } from 'express'
 
 import user from './app/controllers/UserController'
@@ -8,6 +9,8 @@ import authAdminMiddleware from './app/middlewares/authAdmin'
 import DeliverymenController from './app/controllers/DeliverymenController'
 
 const routes = new Router()
+
+routes.use(cors())
 
 routes.post('/login', SessionController.store)
 routes.post('/user', user.store)
