@@ -42,15 +42,15 @@ class DeliverymenController {
   async update(req, res) {
     const { id } = req.params
 
-    const courier = await Deliverymen.findByPk(id)
+    const deliveryman = await Deliverymen.findByPk(id)
 
-    if (!courier) {
-      return res.status(404).json({ error: 'Courier does not exists.' })
+    if (!deliveryman) {
+      return res.status(404).json({ error: 'Deliveyman does not exists.' })
     }
 
-    const { name, email } = await Deliverymen.update(req.body)
+    const { name, email, avatar_id } = await deliveryman.update(req.body)
 
-    return res.json({ id, name, email })
+    return res.json({ name, email, avatar_id })
   }
 
   async delete(req, res) {

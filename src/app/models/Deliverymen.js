@@ -9,10 +9,17 @@ class Deliverymen extends Model {
       },
       {
         sequelize,
+        tableName: 'deliverymen',
       }
     )
 
     return this
+  }
+
+  static associate(models) {
+    this.belongsTo(models.File, {
+      foreignKey: 'avatar_id',
+    })
   }
 }
 
