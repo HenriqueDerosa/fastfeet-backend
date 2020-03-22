@@ -2,16 +2,17 @@ import * as yup from 'yup'
 import Order from '../models/Order'
 
 class OrdersController {
+  // creates a new order using recipient_id and deliveryman_id
   async store(req, res) {
     const schema = yup.object().shape({
       recipient_id: yup.number(),
       deliveryman_id: yup.number(),
-      start_date: yup.string(),
+      product: yup.string(),
     })
 
     if (!(await schema.isValid(req.body))) {
       return res.status(401).json({
-        error: 'You must send recipient_id, deliveryman_id, start_date',
+        error: 'You sent wrong data',
       })
     }
 
@@ -24,12 +25,19 @@ class OrdersController {
     }
   }
 
+  // lists all orders
   async index(req, res) {
-    const orders = await Order.findAll()
+    const orders = await Order.findAll({
+      where: {
+        canceled_at: null,
+        end_date: null,
+      },
+    })
 
     return res.status(200).json(orders)
   }
 
+  // updates values of specified order
   async update(req, res) {
     const { id } = req.params
 
@@ -44,6 +52,7 @@ class OrdersController {
     return res.json({ id, name, email })
   }
 
+  // delete specified order
   async delete(req, res) {
     const { id } = req.params
 

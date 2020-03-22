@@ -1,5 +1,8 @@
+import { isWithinInterval, setHours, startOfHour, parseISO } from 'date-fns'
+
 import * as yup from 'yup'
 import Deliverymen from '../models/Deliverymen'
+import Order from '../models/Order'
 
 class DeliverymenController {
   async store(req, res) {
@@ -10,7 +13,7 @@ class DeliverymenController {
 
     if (!(await schema.isValid(req.body))) {
       return res.status(401).json({
-        error: 'You must send name, email',
+        error: 'You sent wrong data',
       })
     }
 
@@ -56,17 +59,99 @@ class DeliverymenController {
   async delete(req, res) {
     const { id } = req.params
 
-    const courier = await Deliverymen.findByPk(id)
+    const deliveryman = await Deliverymen.findByPk(id)
 
-    if (!courier) {
-      return res.status(404).json({ error: 'Courier does not exists' })
+    if (!deliveryman) {
+      return res.status(404).json({ error: 'Deliveryman does not exists' })
     }
 
     try {
       await Deliverymen.destroy({ where: { id } })
       return res.status(200).json({
-        status: `courier '${courier.name}' has been sucessfuly removed`,
+        status: `deliveryman '${deliveryman.name}' has been sucessfuly removed`,
       })
+    } catch (err) {
+      return res.json(err)
+    }
+  }
+
+  async orders(req, res) {
+    const { id } = req.params
+
+    try {
+      const orders = await Order.findAll({
+        where: {
+          deliveryman_id: id,
+        },
+      })
+
+      return res.status(200).json(orders)
+    } catch (err) {
+      return res.json(err)
+    }
+  }
+
+  /* Update order (order_id)
+    Pick up to deliver (sending start_date)
+    Deliver (sending end_date + signature_id)
+  */
+  async updateOrder(req, res) {
+    const { id } = req.params
+    const { order_id, start_date, end_date, signature_id } = req.body
+
+    const schema = yup.object().shape({
+      order_id: yup.number().required(),
+      start_date: yup.date(),
+      end_date: yup.date(),
+      signature_id: yup
+        .number()
+        .when('end_date', (end_date, signature) =>
+          end_date ? signature.required() : signature
+        ),
+    })
+
+    if (!(await schema.isValid(req.body))) {
+      return res.status(401).json({
+        error: 'You sent wrong data',
+      })
+    }
+
+    if (start_date) {
+      const parsedDate = parseISO(start_date)
+
+      if (
+        !isWithinInterval(parsedDate, {
+          start: startOfHour(setHours(parsedDate, 8)),
+          end: startOfHour(setHours(parsedDate, 18)),
+        })
+      ) {
+        return res
+          .status(400)
+          .json({ error: 'You must use dates between 8am to 6pm' })
+      }
+    }
+
+    const deliveryman = await Deliverymen.findByPk(id)
+    const order = await Order.findByPk(order_id)
+
+    if (!deliveryman || !order) {
+      return res.status(404).json({ error: 'Not found' })
+    }
+
+    try {
+      const data = start_date
+        ? {
+            start_date,
+            end_date: null,
+          }
+        : {
+            end_date,
+            signature_id,
+          }
+
+      const updatedOrder = await order.update(data)
+
+      return res.status(200).json(updatedOrder)
     } catch (err) {
       return res.json(err)
     }

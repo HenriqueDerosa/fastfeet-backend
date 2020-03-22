@@ -18,7 +18,7 @@ class SessionController {
     })
 
     if (!(await schema.isValid(req.body))) {
-      return res.status(401).json({ error: 'You must send email and password' })
+      return res.status(401).json({ error: 'You sent wrong data' })
     }
 
     const { email, password } = req.body

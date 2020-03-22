@@ -16,11 +16,9 @@ class RecipientsController {
 
     if (!(await schema.isValid(req.body))) {
       return res.status(401).json({
-        error: 'You must send address, address2, number, state, city, zipcode',
+        error: 'You sent wrong data',
       })
     }
-
-    const { name, address, address2, number, state, city, zipcode } = req.body
 
     try {
       const {
