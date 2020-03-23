@@ -123,7 +123,11 @@ class OrdersController {
       await Mail.send({
         to: `${order.deliveryman.name} <${order.deliveryman.email}>`,
         subject: `Entrega cancelada #${order.id}`,
-        text: 'Você tem um novo cancelamento',
+        template: 'cancel-order',
+        context: {
+          name: order.deliveryman.name,
+          orderId: order.id,
+        },
       })
     }
 
