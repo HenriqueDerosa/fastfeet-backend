@@ -6,6 +6,8 @@ import Recipient from '../models/Recipient'
 import Deliverymen from '../models/Deliverymen'
 import File from '../models/File'
 
+import Mail from '../../lib/Mail'
+
 class OrdersController {
   // creates a new order using recipient_id and deliveryman_id
   async store(req, res) {
@@ -94,15 +96,40 @@ class OrdersController {
   async update(req, res) {
     const { id } = req.params
 
-    const order = await Order.findByPk(id)
+    const order = await Order.findByPk(id, {
+      attributes: ['id', 'product', 'canceled_at', 'start_date', 'end_date'],
+      include: [
+        {
+          model: Deliverymen,
+          as: 'deliveryman',
+          attributes: ['name', 'email'],
+        },
+      ],
+    })
 
     if (!order) {
       return res.status(404).json({ error: 'Order does not exists.' })
     }
 
-    const { name, email } = await Order.update(req.body)
+    // const { name, email } = await Order.update(req.body)
 
-    return res.json({ id, name, email })
+    const { product, start_date, end_date, canceled_at } = req.body
+
+    if (product) order.product = product
+    if (start_date) order.start_date = start_date
+    if (end_date) order.end_date = end_date
+    if (canceled_at) {
+      order.canceled_at = new Date()
+      await Mail.send({
+        to: `${order.deliveryman.name} <${order.deliveryman.email}>`,
+        subject: `Entrega cancelada #${order.id}`,
+        text: 'Você tem um novo cancelamento',
+      })
+    }
+
+    const newOrder = await order.save()
+
+    return res.json(newOrder)
   }
 
   // delete specified order
@@ -117,11 +144,12 @@ class OrdersController {
 
     try {
       await Order.destroy({ where: { id } })
+
       return res.status(200).json({
-        status: `courier '${courier.name}' has been sucessfuly removed`,
+        status: `order '${order.id}' has been sucessfuly removed`,
       })
     } catch (err) {
-      return res.json(err)
+      return res.json({ error: err })
     }
   }
 }
