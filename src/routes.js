@@ -1,4 +1,3 @@
-import cors from 'cors'
 import multer from 'multer'
 import multerConfig from './config/multer'
 import { Router } from 'express'
@@ -23,9 +22,7 @@ import DeliveryProblemsController from './app/controllers/DeliveryProblemsContro
 const routes = new Router()
 const upload = multer(multerConfig)
 
-routes.use(cors())
-
-routes.post('/login', SessionController.store)
+routes.post('/login', validateSession.store, SessionController.store)
 routes.post('/user', validateUser.store, user.store)
 
 // Allows only authorized users

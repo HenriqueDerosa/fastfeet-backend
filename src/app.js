@@ -3,6 +3,7 @@ import express from 'express'
 import path from 'path'
 import Youch from 'youch'
 import 'express-async-errors'
+import cors from 'cors'
 
 import routes from './routes'
 import * as Sentry from '@sentry/node'
@@ -22,6 +23,11 @@ class App {
   middlewares() {
     this.server.use(Sentry.Handlers.requestHandler())
     this.server.use(express.json())
+    this.server.use(
+      cors({
+        origin: process.env.FRONT_URL,
+      })
+    )
     this.server.use(
       '/files',
       express.static(path.resolve(__dirname, '..', 'tmp', 'uploads'))
