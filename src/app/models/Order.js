@@ -4,14 +4,6 @@ class Order extends Model {
   static init(sequelize) {
     super.init(
       {
-        recipient_id: {
-          type: Sequelize.INTEGER,
-          allowNull: false,
-        },
-        deliveryman_id: {
-          type: Sequelize.INTEGER,
-          allowNull: false,
-        },
         product: {
           type: Sequelize.STRING,
           allowNull: false,
@@ -40,6 +32,14 @@ class Order extends Model {
   static associate(models) {
     this.belongsTo(models.File, {
       foreignKey: 'signature_id',
+    })
+    this.belongsTo(models.Recipient, {
+      foreignKey: 'recipient_id',
+      as: 'recipient',
+    })
+    this.belongsTo(models.Deliverymen, {
+      foreignKey: 'deliveryman_id',
+      as: 'deliveryman',
     })
   }
 }

@@ -1,7 +1,7 @@
 import { Op } from 'sequelize'
 import * as yup from 'yup'
 import Recipient from '../models/Recipient'
-import User from '../models/User'
+
 import { PER_PAGE } from '../utils/constants'
 
 class RecipientsController {

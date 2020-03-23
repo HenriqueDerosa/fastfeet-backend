@@ -1,6 +1,10 @@
 import { Op } from 'sequelize'
 import * as yup from 'yup'
 import Order from '../models/Order'
+import { PER_PAGE } from '../utils/constants'
+import Recipient from '../models/Recipient'
+import Deliverymen from '../models/Deliverymen'
+import File from '../models/File'
 
 class OrdersController {
   // creates a new order using recipient_id and deliveryman_id
@@ -44,6 +48,43 @@ class OrdersController {
         end_date: null,
         ...filter,
       },
+      include: [
+        {
+          model: Recipient,
+          as: 'recipient',
+          attributes: [
+            'id',
+            'name',
+            'address',
+            'address2',
+            'number',
+            'state',
+            'city',
+            'zipcode',
+          ],
+        },
+        {
+          model: Deliverymen,
+          as: 'deliveryman',
+          attributes: ['id', 'name', 'email'],
+          include: [
+            {
+              model: File,
+              as: 'avatar',
+              attributes: ['url', 'path', 'name'],
+            },
+          ],
+        },
+      ],
+      attributes: [
+        'id',
+        'product',
+        'start_date',
+        'end_date',
+        'canceled_at',
+        'updatedAt',
+        'signature_id',
+      ],
     })
 
     return res.status(200).json(orders)

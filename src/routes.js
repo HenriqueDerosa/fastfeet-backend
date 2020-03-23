@@ -11,6 +11,7 @@ import authAdminMiddleware from './app/middlewares/authAdmin'
 import DeliverymenController from './app/controllers/DeliverymenController'
 import FileController from './app/controllers/FileController'
 import OrdersController from './app/controllers/OrdersController'
+import DeliveryProblemsController from './app/controllers/DeliveryProblemsController'
 
 const routes = new Router()
 const upload = multer(multerConfig)
@@ -44,5 +45,10 @@ routes.get('/order', OrdersController.index)
 routes.post('/order', OrdersController.store)
 routes.put('/order/:id', OrdersController.update)
 routes.delete('/order/:id', OrdersController.delete)
+
+routes.get('/order/problems', DeliveryProblemsController.index)
+routes.get('/order/:id/problems', DeliveryProblemsController.show)
+routes.post('/order/:id/problems', DeliveryProblemsController.store)
+routes.delete('/problem/:id/cancel-order', DeliveryProblemsController.delete)
 
 export default routes

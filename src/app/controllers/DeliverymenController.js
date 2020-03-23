@@ -4,6 +4,8 @@ import { isWithinInterval, setHours, startOfHour, parseISO } from 'date-fns'
 import * as yup from 'yup'
 import Deliverymen from '../models/Deliverymen'
 import Order from '../models/Order'
+import { PER_PAGE } from '../utils/constants'
+import File from '../models/File'
 
 class DeliverymenController {
   async store(req, res) {
@@ -48,6 +50,14 @@ class DeliverymenController {
           [Op.iLike]: `%${q}%`,
         },
       },
+      attributes: ['id', 'name', 'email'],
+      include: [
+        {
+          model: File,
+          as: 'avatar',
+          attributes: ['url', 'path', 'name'],
+        },
+      ],
     })
 
     return res.status(200).json(deliverymen)
