@@ -1,3 +1,4 @@
+import { Op } from 'sequelize'
 import * as yup from 'yup'
 import Order from '../models/Order'
 
@@ -27,10 +28,21 @@ class OrdersController {
 
   // lists all orders
   async index(req, res) {
+    const { page = 1, q } = req.query
+
+    const filter = q && {
+      product: {
+        [Op.iLike]: `%${q}%`,
+      },
+    }
+
     const orders = await Order.findAll({
+      limit: PER_PAGE,
+      offset: (page - 1) * PER_PAGE,
       where: {
         canceled_at: null,
         end_date: null,
+        ...filter,
       },
     })
 
@@ -41,9 +53,9 @@ class OrdersController {
   async update(req, res) {
     const { id } = req.params
 
-    const courier = await Order.findByPk(id)
+    const order = await Order.findByPk(id)
 
-    if (!courier) {
+    if (!order) {
       return res.status(404).json({ error: 'Order does not exists.' })
     }
 
@@ -56,9 +68,9 @@ class OrdersController {
   async delete(req, res) {
     const { id } = req.params
 
-    const courier = await Order.findByPk(id)
+    const order = await Order.findByPk(id)
 
-    if (!courier) {
+    if (!order) {
       return res.status(404).json({ error: 'Order does not exists' })
     }
 

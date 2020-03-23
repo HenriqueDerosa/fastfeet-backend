@@ -28,7 +28,10 @@ routes.post('/files', upload.single('file'), FileController.store)
 
 // Allows only admin users
 routes.use(authAdminMiddleware)
+routes.get('/recipients', RecipientsController.index)
 routes.post('/recipients', RecipientsController.store)
+routes.put('/recipients', RecipientsController.update)
+routes.delete('/recipients', RecipientsController.delete)
 
 routes.get('/deliverymen', DeliverymenController.index)
 routes.post('/deliverymen', DeliverymenController.store)

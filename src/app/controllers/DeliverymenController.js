@@ -1,3 +1,4 @@
+import { Op } from 'sequelize'
 import { isWithinInterval, setHours, startOfHour, parseISO } from 'date-fns'
 
 import * as yup from 'yup'
@@ -37,7 +38,17 @@ class DeliverymenController {
   }
 
   async index(req, res) {
-    const deliverymen = await Deliverymen.findAll()
+    const { page = 1, q } = req.query
+
+    const deliverymen = await Deliverymen.findAll({
+      limit: PER_PAGE,
+      offset: (page - 1) * PER_PAGE,
+      where: q && {
+        name: {
+          [Op.iLike]: `%${q}%`,
+        },
+      },
+    })
 
     return res.status(200).json(deliverymen)
   }
