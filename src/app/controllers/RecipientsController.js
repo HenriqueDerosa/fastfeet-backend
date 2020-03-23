@@ -23,22 +23,6 @@ class RecipientsController {
   }
 
   async store(req, res) {
-    const schema = yup.object().shape({
-      name: yup.string(),
-      address: yup.string(),
-      address2: yup.string(),
-      number: yup.string(),
-      state: yup.string(),
-      city: yup.string(),
-      zipcode: yup.string(),
-    })
-
-    if (!(await schema.isValid(req.body))) {
-      return res.status(401).json({
-        error: 'You sent wrong data',
-      })
-    }
-
     try {
       const {
         name,

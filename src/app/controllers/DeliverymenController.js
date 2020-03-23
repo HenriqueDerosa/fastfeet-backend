@@ -6,20 +6,10 @@ import Deliverymen from '../models/Deliverymen'
 import Order from '../models/Order'
 import { PER_PAGE } from '../utils/constants'
 import File from '../models/File'
+import DeliverProductService from '../services/DeliverProductService'
 
 class DeliverymenController {
   async store(req, res) {
-    const schema = yup.object().shape({
-      name: yup.string(),
-      email: yup.string(),
-    })
-
-    if (!(await schema.isValid(req.body))) {
-      return res.status(401).json({
-        error: 'You sent wrong data',
-      })
-    }
-
     const { email } = req.body
 
     const existentDeliverymen = await Deliverymen.findOne({ where: { email } })
@@ -96,6 +86,7 @@ class DeliverymenController {
     }
   }
 
+  /* list orders for specified deliveryman */
   async orders(req, res) {
     const { id } = req.params
 
@@ -107,72 +98,6 @@ class DeliverymenController {
       })
 
       return res.status(200).json(orders)
-    } catch (err) {
-      return res.json(err)
-    }
-  }
-
-  /* Update order (order_id)
-    Pick up to deliver (sending start_date)
-    Deliver (sending end_date + signature_id)
-  */
-  async updateOrder(req, res) {
-    const { id } = req.params
-    const { order_id, start_date, end_date, signature_id } = req.body
-
-    const schema = yup.object().shape({
-      order_id: yup.number().required(),
-      start_date: yup.date(),
-      end_date: yup.date(),
-      signature_id: yup
-        .number()
-        .when('end_date', (end_date, signature) =>
-          end_date ? signature.required() : signature
-        ),
-    })
-
-    if (!(await schema.isValid(req.body))) {
-      return res.status(401).json({
-        error: 'You sent wrong data',
-      })
-    }
-
-    if (start_date) {
-      const parsedDate = parseISO(start_date)
-
-      if (
-        !isWithinInterval(parsedDate, {
-          start: startOfHour(setHours(parsedDate, 8)),
-          end: startOfHour(setHours(parsedDate, 18)),
-        })
-      ) {
-        return res
-          .status(400)
-          .json({ error: 'You must use dates between 8am to 6pm' })
-      }
-    }
-
-    const deliveryman = await Deliverymen.findByPk(id)
-    const order = await Order.findByPk(order_id)
-
-    if (!deliveryman || !order) {
-      return res.status(404).json({ error: 'Not found' })
-    }
-
-    try {
-      const data = start_date
-        ? {
-            start_date,
-            end_date: null,
-          }
-        : {
-            end_date,
-            signature_id,
-          }
-
-      const updatedOrder = await order.update(data)
-
-      return res.status(200).json(updatedOrder)
     } catch (err) {
       return res.json(err)
     }

@@ -1,31 +1,24 @@
 import { Op } from 'sequelize'
 import * as yup from 'yup'
 import Order from '../models/Order'
-import { PER_PAGE } from '../utils/constants'
+import { PER_PAGE, CACHE } from '../utils/constants'
 import Recipient from '../models/Recipient'
 import Deliverymen from '../models/Deliverymen'
 import File from '../models/File'
 
 import CancellationMail from '../jobs/CancellationMail'
 import Queue from '../../lib/Queue'
+import PickupProductService from '../services/PickupProductService'
+import DeliverProductService from '../services/DeliverProductService'
+
+import Cache from '../../lib/Cache'
 
 class OrdersController {
-  // creates a new order using recipient_id and deliveryman_id
   async store(req, res) {
-    const schema = yup.object().shape({
-      recipient_id: yup.number(),
-      deliveryman_id: yup.number(),
-      product: yup.string(),
-    })
-
-    if (!(await schema.isValid(req.body))) {
-      return res.status(401).json({
-        error: 'You sent wrong data',
-      })
-    }
-
     try {
       const order = await Order.create(req.body)
+
+      await Cache.invalidatePrefix(CACHE.ORDERS)
 
       return res.status(200).json(order)
     } catch (err) {
@@ -36,6 +29,13 @@ class OrdersController {
   // lists all orders
   async index(req, res) {
     const { page = 1, q } = req.query
+
+    const cacheKey = `${CACHE.ORDERS}:${page}`
+    const cached = await Cache.get(cacheKey)
+
+    if (cached) {
+      return res.json(cached)
+    }
 
     const filter = q && {
       product: {
@@ -90,6 +90,8 @@ class OrdersController {
       ],
     })
 
+    await Cache.set(cacheKey, orders)
+
     return res.status(200).json(orders)
   }
 
@@ -112,8 +114,6 @@ class OrdersController {
       return res.status(404).json({ error: 'Order does not exists.' })
     }
 
-    // const { name, email } = await Order.update(req.body)
-
     const { product, start_date, end_date, canceled_at } = req.body
 
     if (product) order.product = product
@@ -127,6 +127,8 @@ class OrdersController {
     }
 
     const newOrder = await order.save()
+
+    await Cache.invalidatePrefix(CACHE.ORDERS)
 
     return res.json(newOrder)
   }
@@ -144,12 +146,43 @@ class OrdersController {
     try {
       await Order.destroy({ where: { id } })
 
+      await Cache.invalidatePrefix(CACHE.ORDERS)
+
       return res.status(200).json({
         status: `order '${order.id}' has been sucessfuly removed`,
       })
     } catch (err) {
       return res.json({ error: err })
     }
+  }
+
+  async pickup(req, res) {
+    const { id } = req.params
+    const { start_date } = req.body
+
+    const pickedUp = await PickupProductService.run({
+      order_id: id,
+      start_date,
+    })
+
+    await Cache.invalidatePrefix(CACHE.ORDERS)
+
+    return res.json(pickedUp)
+  }
+
+  async deliver(req, res) {
+    const { id } = req.params
+    const { end_date, signature_id } = req.body
+
+    const deliveredProduct = await DeliverProductService.run({
+      order_id: id,
+      end_date,
+      signature_id,
+    })
+
+    await Cache.invalidatePrefix(CACHE.ORDERS)
+
+    return res.json(deliveredProduct)
   }
 }
 

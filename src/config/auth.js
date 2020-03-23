@@ -1,5 +1,5 @@
 export default {
-  secret: 'fastfeet+magic+secret_henriquederosa_bootcamp_rocket-yeye/',
+  secret: process.env.APP_SECRET,
   options: {
     expiresIn: '7d',
   },

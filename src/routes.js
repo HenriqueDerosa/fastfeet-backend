@@ -3,6 +3,13 @@ import multer from 'multer'
 import multerConfig from './config/multer'
 import { Router } from 'express'
 
+import validateUser from './app/validators/user'
+import validateSession from './app/validators/session'
+import validateRecipients from './app/validators/recipients'
+import validateDeliverymen from './app/validators/deliverymen'
+import validateProblems from './app/validators/deliveryProblems'
+import validateOrders from './app/validators/orders'
+
 import user from './app/controllers/UserController'
 import SessionController from './app/controllers/SessionController'
 import RecipientsController from './app/controllers/RecipientsController'
@@ -19,7 +26,7 @@ const upload = multer(multerConfig)
 routes.use(cors())
 
 routes.post('/login', SessionController.store)
-routes.post('/user', user.store)
+routes.post('/user', validateUser.store, user.store)
 
 // Allows only authorized users
 routes.use(authMiddleware)
@@ -29,26 +36,52 @@ routes.post('/files', upload.single('file'), FileController.store)
 
 // Allows only admin users
 routes.use(authAdminMiddleware)
+
+// Recipients
 routes.get('/recipients', RecipientsController.index)
-routes.post('/recipients', RecipientsController.store)
+routes.post('/recipients', validateRecipients.store, RecipientsController.store)
 routes.put('/recipients', RecipientsController.update)
 routes.delete('/recipients', RecipientsController.delete)
 
+// Deliverymen
 routes.get('/deliverymen', DeliverymenController.index)
-routes.post('/deliverymen', DeliverymenController.store)
+routes.post(
+  '/deliverymen',
+  validateDeliverymen.store,
+  DeliverymenController.store
+)
 routes.put('/deliverymen/:id', DeliverymenController.update)
 routes.delete('/deliverymen/:id', DeliverymenController.delete)
 routes.get('/deliverymen/:id/deliveries', DeliverymenController.orders)
-routes.put('/deliverymen/:id/update-order', DeliverymenController.updateOrder)
 
+// Orders / Deliveries
 routes.get('/order', OrdersController.index)
-routes.post('/order', OrdersController.store)
+routes.post('/order', validateOrders.store, OrdersController.store)
 routes.put('/order/:id', OrdersController.update)
+routes.put('/order/:id/pickup', validateOrders.pickup, OrdersController.pickup)
+routes.put(
+  '/order/:id/deliver',
+  validateOrders.deliver,
+  OrdersController.deliver
+)
 routes.delete('/order/:id', OrdersController.delete)
 
-routes.get('/order/problems', DeliveryProblemsController.index)
-routes.get('/order/:id/problems', DeliveryProblemsController.show)
-routes.post('/order/:id/problems', DeliveryProblemsController.store)
+// Problems
+routes.get(
+  '/order/problems',
+  validateProblems.index,
+  DeliveryProblemsController.index
+)
+routes.get(
+  '/order/:id/problems',
+  validateProblems.show,
+  DeliveryProblemsController.show
+)
+routes.post(
+  '/order/:id/problems',
+  validateProblems.store,
+  DeliveryProblemsController.store
+)
 routes.delete('/problem/:id/cancel-order', DeliveryProblemsController.delete)
 
 export default routes

@@ -6,21 +6,6 @@ import authConfig from '../../config/auth'
 
 class SessionController {
   async store(req, res) {
-    const schema = yup.object().shape({
-      email: yup
-        .string()
-        .email()
-        .required(),
-      password: yup
-        .string()
-        .required()
-        .min(6),
-    })
-
-    if (!(await schema.isValid(req.body))) {
-      return res.status(401).json({ error: 'You sent wrong data' })
-    }
-
     const { email, password } = req.body
 
     const user = await User.findOne({ where: { email } })

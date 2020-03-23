@@ -1,3 +1,4 @@
+import * as yup from 'yup'
 import User from '../models/User'
 
 class UserController {
@@ -11,7 +12,7 @@ class UserController {
 
   async store(req, res) {
     const { name, email, password } = req.body
-    console.log(password)
+
     const user = await User.create({ name, email, password })
 
     return res.json(user)
