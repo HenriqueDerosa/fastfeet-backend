@@ -6,7 +6,8 @@ import Recipient from '../models/Recipient'
 import Deliverymen from '../models/Deliverymen'
 import File from '../models/File'
 
-import Mail from '../../lib/Mail'
+import CancellationMail from '../jobs/CancellationMail'
+import Queue from '../../lib/Queue'
 
 class OrdersController {
   // creates a new order using recipient_id and deliveryman_id
@@ -120,14 +121,8 @@ class OrdersController {
     if (end_date) order.end_date = end_date
     if (canceled_at) {
       order.canceled_at = new Date()
-      await Mail.send({
-        to: `${order.deliveryman.name} <${order.deliveryman.email}>`,
-        subject: `Entrega cancelada #${order.id}`,
-        template: 'cancel-order',
-        context: {
-          name: order.deliveryman.name,
-          orderId: order.id,
-        },
+      await Queue.add(CancellationMail.key, {
+        order,
       })
     }
 
