@@ -28,7 +28,7 @@ class Cache {
 
     const keysWithoutPrefix = keys.map(key => key.replace('cache:', ''))
 
-    return this.redis.del(keysWithoutPrefix)
+    this.redis.del(keysWithoutPrefix)
   }
 }
 

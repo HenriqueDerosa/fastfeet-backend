@@ -6,8 +6,9 @@ import Recipient from '../models/Recipient'
 import Deliverymen from '../models/Deliverymen'
 import File from '../models/File'
 
-import CancellationMail from '../jobs/CancellationMail'
 import Queue from '../../lib/Queue'
+import CancellationMail from '../jobs/CancellationMail'
+import CreationMail from '../jobs/CreationMail'
 import PickupProductService from '../services/PickupProductService'
 import DeliverProductService from '../services/DeliverProductService'
 
@@ -18,8 +19,43 @@ class OrdersController {
     try {
       const order = await Order.create(req.body)
 
-      await Cache.invalidatePrefix(CACHE.ORDERS)
+      await order.reload({
+        attributes: ['id', 'product', 'canceled_at', 'start_date', 'end_date'],
+        include: [
+          {
+            model: Recipient,
+            as: 'recipient',
+            attributes: [
+              'id',
+              'name',
+              'address',
+              'address2',
+              'number',
+              'state',
+              'city',
+              'zipcode',
+            ],
+          },
+          {
+            model: Deliverymen,
+            as: 'deliveryman',
+            attributes: ['id', 'name', 'email'],
+            include: [
+              {
+                model: File,
+                as: 'avatar',
+                attributes: ['url', 'path', 'name'],
+              },
+            ],
+          },
+        ],
+      })
 
+      await Queue.add(CreationMail.key, {
+        order,
+      })
+
+      await Cache.invalidatePrefix(CACHE.ORDERS)
       return res.status(200).json(order)
     } catch (err) {
       return res.json(err)
@@ -120,6 +156,7 @@ class OrdersController {
     if (start_date) order.start_date = start_date
     if (end_date) order.end_date = end_date
     if (canceled_at) {
+      console.log('cancelled', order.id)
       order.canceled_at = new Date()
       await Queue.add(CancellationMail.key, {
         order,

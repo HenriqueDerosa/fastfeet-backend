@@ -1,0 +1,26 @@
+<strong>Olá, {{ name }},</strong>
+<p>
+  Um pedido foi feito
+</p>
+<table>
+  <thead>
+    <th>ID</th>
+    <th>PRODUTO</th>
+    <th>DESTINATÁRIO</th>
+    <th>ENDEREÇO</th>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{{ orderId }}</td>
+      <td>{{ productName }}</td>
+      <td>{{ recipientName }}</td>
+      <td>{{ recipientFullAddress}}</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  <small>
+    Você deve fazer essa entrega
+  </small>
+</p>
