@@ -38,7 +38,7 @@ routes.use(authAdminMiddleware)
 routes.get('/recipients', RecipientsController.index)
 routes.post('/recipients', validateRecipients.store, RecipientsController.store)
 routes.put('/recipients', RecipientsController.update)
-routes.delete('/recipients', RecipientsController.delete)
+routes.delete('/recipients/:id', RecipientsController.delete)
 
 // Deliverymen
 routes.get('/deliverymen', DeliverymenController.index)

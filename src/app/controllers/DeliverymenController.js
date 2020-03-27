@@ -78,9 +78,7 @@ class DeliverymenController {
 
     try {
       await Deliverymen.destroy({ where: { id } })
-      return res.status(200).json({
-        status: `deliveryman '${deliveryman.name}' has been sucessfuly removed`,
-      })
+      return res.status(204).send()
     } catch (err) {
       return res.json(err)
     }

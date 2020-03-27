@@ -54,16 +54,13 @@ class DeliveryProblemsController {
     const { id } = req.params
 
     const problem = await DeliveryProblem.findByPk(id)
-    const order = await Order.destroy({
+    await Order.destroy({
       where: {
         id: problem.delivery_id,
       },
     })
 
-    return res.status(200).json({
-      status: `removed order ${problem.delivery_id} of problem ${id}`,
-      order,
-    })
+    return res.status(204).send()
   }
 }
 

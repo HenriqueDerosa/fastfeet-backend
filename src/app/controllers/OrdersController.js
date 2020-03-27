@@ -185,9 +185,7 @@ class OrdersController {
 
       await Cache.invalidatePrefix(CACHE.ORDERS)
 
-      return res.status(200).json({
-        status: `order '${order.id}' has been sucessfuly removed`,
-      })
+      return res.status(204).send()
     } catch (err) {
       return res.json({ error: err })
     }
