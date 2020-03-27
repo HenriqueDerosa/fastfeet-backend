@@ -1,14 +1,9 @@
 <h1 align="center">
   <img alt="Fastfeet" title="Fastfeet" src=".github/logo.png" width="300px" />
 </h1>
-
-<h3 align="center">
-  Desafio 3: FastFeet, continuando a aplicação
-</h3>
-
-<h3 align="center">
-  :warning: Etapa 2/4 do Desafio Final :warning:
-</h3>
+<h2 align="center">
+  Desenvolvido por Henrique Derosa
+</h2>
 
 <p>Esse desafio faz parte do Desafio Final, que é uma aplicação completa (Back-end, Front-end e Mobile) que é avaliada para emissão do Certificado do Bootcamp GoStack, por isso é fundamental que ele seja feito com muito empenho!</p>
 
@@ -16,10 +11,6 @@
 
 <p align="center">
   <img alt="GitHub language count" src="https://img.shields.io/github/languages/count/rocketseat/bootcamp-gostack-desafio-03?color=%2304D361">
-
-  <a href="https://rocketseat.com.br">
-    <img alt="Made by Rocketseat" src="https://img.shields.io/badge/made%20by-Rocketseat-%2304D361">
-  </a>
 
   <img alt="License" src="https://img.shields.io/badge/license-MIT-%2304D361">
 
@@ -29,12 +20,30 @@
 </p>
 
 <p align="center">
+  <a href="#instruções">Instruções</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#rocket-sobre-o-desafio">Sobre o desafio</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-  <a href="#entrega">Entrega</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#licença">Licença</a>
 </p>
 
-## :rocket: Sobre o desafio
+## Instruções
+
+1. Clone the repository
+   `git clone ...`
+   and install dependencies `yarn`
+
+2. Create the postgres docker container
+
+```bash
+docker run --name <container_name> -e POSTGRES_PASSWORD=<password> -p 5432:5432 -d postgres
+```
+
+3. Create the redis docker container
+
+```bash
+docker run --name <container_name> -p 6379:6379 -d -t redis:alpine
+```
+
+## Sobre o desafio
 
 Durante esse desafio vamos aprimorar a aplicação FastFeet que demos início no desafio anterior implementando funcionalidades que aprendemos durante as aulas até agora.
 
@@ -128,10 +137,6 @@ Crie uma rota para a distribuidora cancelar uma entrega baseado no ID do problem
 Exemplo de requisição: `POST https://fastfeet.com/problem/1/cancel-delivery`
 
 Quando uma encomenda for cancelada, o entregador deve receber um e-mail informando-o sobre o cancelamento.
-
-## **📅 Entrega**
-
-Esse desafio **não precisa ser entregue** e não receberá correção. Além disso, o código fonte **não está disponível** por fazer parte do **desafio final**, que será corrigido para **certificação** do bootcamp. Após concluir o desafio, adicionar esse código ao seu Github é uma boa forma de demonstrar seus conhecimentos para oportunidades futuras.
 
 ## **📝 Licença**
 
