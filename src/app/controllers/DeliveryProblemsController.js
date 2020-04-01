@@ -7,7 +7,7 @@ class DeliveryProblemsController {
   async index(req, res) {
     const { id: delivery_id } = req.params
 
-    const problems = await Order.findAll({
+    const problems = await DeliveryProblem.findAll({
       where: delivery_id && {
         id: delivery_id,
       },
