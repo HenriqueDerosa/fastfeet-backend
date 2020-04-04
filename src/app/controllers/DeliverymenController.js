@@ -53,6 +53,28 @@ class DeliverymenController {
     return res.status(200).json(deliverymen)
   }
 
+  async show(req, res) {
+    const { id } = req.params
+
+    const [deliveryman] = await Deliverymen.findAll({
+      where: {
+        id,
+      },
+      attributes: ['id', 'name', 'email', 'created_at'],
+      include: [
+        {
+          model: File,
+          as: 'avatar',
+          attributes: ['url', 'path', 'name'],
+        },
+      ],
+    })
+    if (!deliveryman) {
+      return res.status(404).json({ error: 'not found' })
+    }
+    return res.json(deliveryman)
+  }
+
   async update(req, res) {
     const { id } = req.params
 

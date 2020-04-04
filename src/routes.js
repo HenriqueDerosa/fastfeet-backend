@@ -26,6 +26,7 @@ routes.post('/user', validateUser.store, user.store)
 
 // Deliverymen
 routes.get('/deliverymen', DeliverymenController.index)
+routes.get('/deliverymen/:id', DeliverymenController.show)
 routes.post(
   '/deliverymen',
   validateDeliverymen.store,
