@@ -13,7 +13,6 @@ import user from './app/controllers/UserController'
 import SessionController from './app/controllers/SessionController'
 import RecipientsController from './app/controllers/RecipientsController'
 import authMiddleware from './app/middlewares/auth'
-import authAdminMiddleware from './app/middlewares/authAdmin'
 import DeliverymenController from './app/controllers/DeliverymenController'
 import FileController from './app/controllers/FileController'
 import OrdersController from './app/controllers/OrdersController'
@@ -25,21 +24,6 @@ const upload = multer(multerConfig)
 routes.post('/login', validateSession.store, SessionController.store)
 routes.post('/user', validateUser.store, user.store)
 
-// Allows only authorized users
-routes.use(authMiddleware)
-routes.get('/user/:id', user.index)
-
-routes.post('/files', upload.single('file'), FileController.store)
-
-// Allows only admin users
-routes.use(authAdminMiddleware)
-
-// Recipients
-routes.get('/recipients', RecipientsController.index)
-routes.post('/recipients', validateRecipients.store, RecipientsController.store)
-routes.put('/recipients', RecipientsController.update)
-routes.delete('/recipients/:id', RecipientsController.delete)
-
 // Deliverymen
 routes.get('/deliverymen', DeliverymenController.index)
 routes.post(
@@ -48,8 +32,23 @@ routes.post(
   DeliverymenController.store
 )
 routes.put('/deliverymen/:id', DeliverymenController.update)
-routes.delete('/deliverymen/:id', DeliverymenController.delete)
 routes.get('/deliverymen/:id/deliveries', DeliverymenController.orders)
+
+// Middleware > only authorized users
+routes.use(authMiddleware)
+routes.get('/user/:id', user.index)
+
+// Files
+routes.post('/files', upload.single('file'), FileController.store)
+
+// Deliverymen
+routes.delete('/deliverymen/:id', DeliverymenController.delete)
+
+// Recipients
+routes.get('/recipients', RecipientsController.index)
+routes.post('/recipients', validateRecipients.store, RecipientsController.store)
+routes.put('/recipients', RecipientsController.update)
+routes.delete('/recipients/:id', RecipientsController.delete)
 
 // Orders / Deliveries
 routes.get('/order', OrdersController.index)
