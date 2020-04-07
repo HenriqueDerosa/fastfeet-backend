@@ -7,6 +7,7 @@ import Order from '../models/Order'
 import { PER_PAGE } from '../utils/constants'
 import File from '../models/File'
 import DeliverProductService from '../services/DeliverProductService'
+import Recipient from '../models/Recipient'
 
 class DeliverymenController {
   async store(req, res) {
@@ -114,7 +115,46 @@ class DeliverymenController {
       const orders = await Order.findAll({
         where: {
           deliveryman_id: id,
+          canceled_at: null,
         },
+        include: [
+          {
+            model: Recipient,
+            as: 'recipient',
+            attributes: [
+              'id',
+              'name',
+              'address',
+              'address2',
+              'number',
+              'state',
+              'city',
+              'zipcode',
+            ],
+          },
+          {
+            model: Deliverymen,
+            as: 'deliveryman',
+            attributes: ['id', 'name', 'email'],
+            include: [
+              {
+                model: File,
+                as: 'avatar',
+                attributes: ['url', 'path', 'name'],
+              },
+            ],
+          },
+        ],
+        attributes: [
+          'id',
+          'product',
+          'created_at',
+          'start_date',
+          'end_date',
+          'canceled_at',
+          'updated_at',
+          'signature_id',
+        ],
       })
 
       return res.status(200).json(orders)
