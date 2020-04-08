@@ -22,9 +22,9 @@ class DeliverymenController {
     }
 
     try {
-      const { id, name } = await Deliverymen.create(req.body)
+      const { id, name, avatar_id } = await Deliverymen.create(req.body)
 
-      return res.status(200).json({ id, name, email })
+      return res.status(200).json({ id, name, email, avatar_id })
     } catch (err) {
       return res.json(err)
     }
