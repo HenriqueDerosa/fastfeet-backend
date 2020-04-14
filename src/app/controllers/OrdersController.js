@@ -1,7 +1,7 @@
 import { Op } from 'sequelize'
 import * as yup from 'yup'
 import Order from '../models/Order'
-import { PER_PAGE, CACHE } from '../utils/constants'
+import { PER_PAGE } from '../utils/constants'
 import Recipient from '../models/Recipient'
 import Deliverymen from '../models/Deliverymen'
 import File from '../models/File'
@@ -11,8 +11,6 @@ import CancellationMail from '../jobs/CancellationMail'
 import CreationMail from '../jobs/CreationMail'
 import PickupProductService from '../services/PickupProductService'
 import DeliverProductService from '../services/DeliverProductService'
-
-import Cache from '../../lib/Cache'
 
 class OrdersController {
   async store(req, res) {
@@ -55,7 +53,6 @@ class OrdersController {
         order,
       })
 
-      await Cache.invalidatePrefix(CACHE.ORDERS)
       return res.status(200).json(order)
     } catch (err) {
       return res.json(err)
@@ -65,13 +62,6 @@ class OrdersController {
   // lists all orders
   async index(req, res) {
     const { page = 1, q } = req.query
-
-    const cacheKey = `${CACHE.ORDERS}:${page}`
-    const cached = await Cache.get(cacheKey)
-
-    if (cached) {
-      return res.json(cached)
-    }
 
     const filter = q && {
       product: {
@@ -126,8 +116,6 @@ class OrdersController {
       ],
     })
 
-    await Cache.set(cacheKey, orders)
-
     return res.status(200).json(orders)
   }
 
@@ -150,9 +138,18 @@ class OrdersController {
       return res.status(404).json({ error: 'Order does not exists.' })
     }
 
-    const { product, start_date, end_date, canceled_at } = req.body
+    const {
+      product,
+      recipient,
+      deliveryman,
+      start_date,
+      end_date,
+      canceled_at,
+    } = req.body
 
     if (product) order.product = product
+    if (recipient) order.recipient_id = recipient
+    if (deliveryman) order.deliveryman_id = deliveryman
     if (start_date) order.start_date = start_date
     if (end_date) order.end_date = end_date
     if (canceled_at) {
@@ -164,8 +161,6 @@ class OrdersController {
     }
 
     const newOrder = await order.save()
-
-    await Cache.invalidatePrefix(CACHE.ORDERS)
 
     return res.json(newOrder)
   }
@@ -183,8 +178,6 @@ class OrdersController {
     try {
       await Order.destroy({ where: { id } })
 
-      await Cache.invalidatePrefix(CACHE.ORDERS)
-
       return res.status(204).send()
     } catch (err) {
       return res.json({ error: err })
@@ -200,8 +193,6 @@ class OrdersController {
       start_date,
     })
 
-    await Cache.invalidatePrefix(CACHE.ORDERS)
-
     return res.json(pickedUp)
   }
 
@@ -214,8 +205,6 @@ class OrdersController {
       end_date,
       signature_id,
     })
-
-    await Cache.invalidatePrefix(CACHE.ORDERS)
 
     return res.json(deliveredProduct)
   }
