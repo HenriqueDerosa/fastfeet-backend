@@ -1,16 +1,11 @@
 import { Op } from 'sequelize'
-import * as yup from 'yup'
 import Recipient from '../models/Recipient'
-
-import { PER_PAGE } from '../utils/constants'
 
 class RecipientsController {
   async index(req, res) {
-    const { page = 1, q } = req.query
+    const { q } = req.query
 
     const filter = {
-      limit: PER_PAGE,
-      offset: (page - 1) * PER_PAGE,
       where: q && {
         name: {
           [Op.iLike]: `%${q}%`,

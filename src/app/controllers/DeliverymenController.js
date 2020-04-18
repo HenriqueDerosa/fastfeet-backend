@@ -1,10 +1,8 @@
 import { Op } from 'sequelize'
-import { isWithinInterval, setHours, startOfHour, parseISO } from 'date-fns'
 
 import * as yup from 'yup'
 import Deliverymen from '../models/Deliverymen'
 import Order from '../models/Order'
-import { PER_PAGE } from '../utils/constants'
 import File from '../models/File'
 import DeliverProductService from '../services/DeliverProductService'
 import Recipient from '../models/Recipient'
@@ -31,11 +29,9 @@ class DeliverymenController {
   }
 
   async index(req, res) {
-    const { page = 1, q } = req.query
+    const { q } = req.query
 
     const deliverymen = await Deliverymen.findAll({
-      limit: PER_PAGE,
-      offset: (page - 1) * PER_PAGE,
       where: q && {
         name: {
           [Op.iLike]: `%${q}%`,
@@ -144,6 +140,11 @@ class DeliverymenController {
               },
             ],
           },
+          {
+            model: File,
+            as: 'signature',
+            attributes: ['url', 'path', 'name'],
+          },
         ],
         attributes: [
           'id',
@@ -153,7 +154,6 @@ class DeliverymenController {
           'end_date',
           'canceled_at',
           'updated_at',
-          'signature_id',
         ],
       })
 

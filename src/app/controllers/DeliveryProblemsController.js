@@ -1,6 +1,8 @@
 import * as yup from 'yup'
 import DeliveryProblem from '../models/DeliveryProblem'
 import Order from '../models/Order'
+import Queue from '../../lib/Queue'
+import CancellationMail from '../jobs/CancellationMail'
 
 class DeliveryProblemsController {
   // list all orders with problems
@@ -49,16 +51,19 @@ class DeliveryProblemsController {
     }
   }
 
-  // cancel order based on problem's id
   async delete(req, res) {
     const { id } = req.params
 
     const problem = await DeliveryProblem.findByPk(id)
-    await Order.destroy({
-      where: {
-        id: problem.delivery_id,
-      },
+
+    const order = await Order.findByPk(problem.delivery_id)
+
+    order.canceled_at = new Date()
+    await Queue.add(CancellationMail.key, {
+      order,
     })
+
+    order.save()
 
     return res.status(204).send()
   }

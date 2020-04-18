@@ -1,7 +1,5 @@
 import { Op } from 'sequelize'
-import * as yup from 'yup'
 import Order from '../models/Order'
-import { PER_PAGE } from '../utils/constants'
 import Recipient from '../models/Recipient'
 import Deliverymen from '../models/Deliverymen'
 import File from '../models/File'
@@ -61,7 +59,7 @@ class OrdersController {
 
   // lists all orders
   async index(req, res) {
-    const { page = 1, q } = req.query
+    const { q } = req.query
 
     const filter = q && {
       product: {
@@ -70,11 +68,7 @@ class OrdersController {
     }
 
     const orders = await Order.findAll({
-      limit: PER_PAGE,
-      offset: (page - 1) * PER_PAGE,
       where: {
-        canceled_at: null,
-        end_date: null,
         ...filter,
       },
       include: [
@@ -104,6 +98,11 @@ class OrdersController {
             },
           ],
         },
+        {
+          model: File,
+          as: 'signature',
+          attributes: ['url', 'path', 'name'],
+        },
       ],
       attributes: [
         'id',
@@ -112,7 +111,6 @@ class OrdersController {
         'end_date',
         'canceled_at',
         'updatedAt',
-        'signature_id',
       ],
     })
 
@@ -151,15 +149,20 @@ class OrdersController {
             },
           ],
         },
+        {
+          model: File,
+          as: 'signature',
+          attributes: ['url', 'path', 'name'],
+        },
       ],
       attributes: [
         'id',
         'product',
+        'created_at',
         'start_date',
         'end_date',
         'canceled_at',
         'updatedAt',
-        'signature_id',
       ],
     })
 
@@ -167,27 +170,13 @@ class OrdersController {
       return res.status(404).json({ error: 'Order does not exists.' })
     }
 
-    const {
-      product,
-      recipient,
-      deliveryman,
-      start_date,
-      end_date,
-      canceled_at,
-    } = req.body
+    const { product, recipient, deliveryman, start_date, end_date } = req.body
 
     if (product) order.product = product
     if (recipient) order.recipient_id = recipient
     if (deliveryman) order.deliveryman_id = deliveryman
     if (start_date) order.start_date = start_date
     if (end_date) order.end_date = end_date
-    if (canceled_at) {
-      console.log('cancelled', order.id)
-      order.canceled_at = new Date()
-      await Queue.add(CancellationMail.key, {
-        order,
-      })
-    }
 
     const newOrder = await order.save()
 
@@ -215,10 +204,11 @@ class OrdersController {
 
   async pickup(req, res) {
     const { id } = req.params
-    const { start_date } = req.body
+    const { deliveryman_id, start_date } = req.body
 
     const pickedUp = await PickupProductService.run({
       order_id: id,
+      deliveryman_id,
       start_date,
     })
 

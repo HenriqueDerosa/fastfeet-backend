@@ -5,7 +5,7 @@ class DeliveryProblem extends Model {
     super.init(
       {
         description: {
-          type: Sequelize.STRING,
+          type: Sequelize.TEXT,
           allowNull: false,
         },
       },

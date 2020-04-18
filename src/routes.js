@@ -54,6 +54,14 @@ routes.post(
 )
 routes.delete('/problem/:id/cancel-order', DeliveryProblemsController.delete)
 
+// Pickup / deliver
+routes.put('/order/:id/pickup', validateOrders.pickup, OrdersController.pickup)
+routes.put(
+  '/order/:id/deliver',
+  validateOrders.deliver,
+  OrdersController.deliver
+)
+
 // Files
 routes.post('/files', upload.single('file'), FileController.store)
 
@@ -79,12 +87,6 @@ routes.delete('/recipients/:id', RecipientsController.delete)
 routes.get('/order', OrdersController.index)
 routes.post('/order', validateOrders.store, OrdersController.store)
 
-routes.put('/order/:id/pickup', validateOrders.pickup, OrdersController.pickup)
-routes.put(
-  '/order/:id/deliver',
-  validateOrders.deliver,
-  OrdersController.deliver
-)
 routes.delete('/order/:id', OrdersController.delete)
 
 export default routes

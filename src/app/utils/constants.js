@@ -8,3 +8,5 @@ export const validationError = err => ({
 export const CACHE = {
   ORDERS: 'orders',
 }
+
+export const WITHDRAW_PER_DAY = 5
