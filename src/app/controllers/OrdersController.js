@@ -124,13 +124,42 @@ class OrdersController {
     const { id } = req.params
 
     const order = await Order.findByPk(id, {
-      attributes: ['id', 'product', 'canceled_at', 'start_date', 'end_date'],
       include: [
+        {
+          model: Recipient,
+          as: 'recipient',
+          attributes: [
+            'id',
+            'name',
+            'address',
+            'address2',
+            'number',
+            'state',
+            'city',
+            'zipcode',
+          ],
+        },
         {
           model: Deliverymen,
           as: 'deliveryman',
-          attributes: ['name', 'email'],
+          attributes: ['id', 'name', 'email'],
+          include: [
+            {
+              model: File,
+              as: 'avatar',
+              attributes: ['url', 'path', 'name'],
+            },
+          ],
         },
+      ],
+      attributes: [
+        'id',
+        'product',
+        'start_date',
+        'end_date',
+        'canceled_at',
+        'updatedAt',
+        'signature_id',
       ],
     })
 

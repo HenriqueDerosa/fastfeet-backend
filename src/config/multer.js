@@ -5,6 +5,7 @@ import crypto from 'crypto'
 import { extname, resolve } from 'path'
 
 export default {
+  limits: { fieldSize: 25 * 1024 * 1024 },
   storage: multer.diskStorage({
     destination: resolve(__dirname, '..', '..', 'tmp', 'uploads'),
     filename: (req, file, callback) => {

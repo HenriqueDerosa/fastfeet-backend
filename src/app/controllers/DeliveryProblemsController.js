@@ -26,7 +26,7 @@ class DeliveryProblemsController {
       where: {
         delivery_id,
       },
-      attributes: ['id', 'description'],
+      attributes: ['id', 'description', 'created_at'],
     })
     if (!problems) {
       return res.status(404).json({ error: 'not found' })

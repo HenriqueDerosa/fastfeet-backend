@@ -34,34 +34,7 @@ routes.post(
 )
 routes.put('/deliverymen/:id', DeliverymenController.update)
 routes.get('/deliverymen/:id/deliveries', DeliverymenController.orders)
-
-// Middleware > only authorized users
-routes.use(authMiddleware)
-routes.get('/user/:id', user.index)
-
-// Files
-routes.post('/files', upload.single('file'), FileController.store)
-
-// Deliverymen
-routes.delete('/deliverymen/:id', DeliverymenController.delete)
-
-// Recipients
-routes.get('/recipients', RecipientsController.index)
-routes.post('/recipients', validateRecipients.store, RecipientsController.store)
-routes.put('/recipients', RecipientsController.update)
-routes.delete('/recipients/:id', RecipientsController.delete)
-
-// Orders / Deliveries
-routes.get('/order', OrdersController.index)
-routes.post('/order', validateOrders.store, OrdersController.store)
 routes.put('/order/:id', OrdersController.update)
-routes.put('/order/:id/pickup', validateOrders.pickup, OrdersController.pickup)
-routes.put(
-  '/order/:id/deliver',
-  validateOrders.deliver,
-  OrdersController.deliver
-)
-routes.delete('/order/:id', OrdersController.delete)
 
 // Problems
 routes.get(
@@ -80,5 +53,38 @@ routes.post(
   DeliveryProblemsController.store
 )
 routes.delete('/problem/:id/cancel-order', DeliveryProblemsController.delete)
+
+// Files
+routes.post('/files', upload.single('file'), FileController.store)
+
+/** FIXME >> SOME OF THE ROUTES ARE TEMPORARILY ABOVE THE MIDDLEWARE
+ * BECAUSE WE DON'T HAVE AN ACTUAL LOGIN FOR THE MOBILE APPLICATION
+ * WE SHOULD IMPLEMENT THE DELIVERYMEN TABLE AS A TYPE OF USER, WITH AUTHENTICATION.
+ */
+
+// Middleware > only authorized users
+routes.use(authMiddleware)
+routes.get('/user/:id', user.index)
+
+// Deliverymen
+routes.delete('/deliverymen/:id', DeliverymenController.delete)
+
+// Recipients
+routes.get('/recipients', RecipientsController.index)
+routes.post('/recipients', validateRecipients.store, RecipientsController.store)
+routes.put('/recipients', RecipientsController.update)
+routes.delete('/recipients/:id', RecipientsController.delete)
+
+// Orders / Deliveries
+routes.get('/order', OrdersController.index)
+routes.post('/order', validateOrders.store, OrdersController.store)
+
+routes.put('/order/:id/pickup', validateOrders.pickup, OrdersController.pickup)
+routes.put(
+  '/order/:id/deliver',
+  validateOrders.deliver,
+  OrdersController.deliver
+)
+routes.delete('/order/:id', OrdersController.delete)
 
 export default routes
